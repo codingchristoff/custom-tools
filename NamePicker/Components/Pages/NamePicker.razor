@@ -1,0 +1,79 @@
+﻿@page "/name-picker"
+@using global::NamePicker.Entities
+@using global::NamePicker.Api.Database
+@inherits OwningComponentBase<DatabaseService>
+@rendermode InteractiveServer
+
+<PageTitle>Name Picker</PageTitle>
+
+<h1>Stand Up Randomiser</h1>
+
+<div id="user-list" class="">
+    <ul>
+        @foreach (var name in displayedNames)
+        {
+            <li>
+                @if (!string.IsNullOrEmpty(name.JiraDashboardUrl))
+                {
+                    <a href="@name.JiraDashboardUrl" target="_blank" rel="noopener noreferrer">@name.FullName</a>
+                }
+                else
+                {
+                    @name.FullName
+                }
+            </li>
+        }
+    </ul>
+</div>
+
+<button class="btn btn-primary" @onclick="AddName">Click me</button>
+
+@code {
+    private string lastName = String.Empty;
+    // private string jiraDashboardUrl =;
+    private List<User> displayedNames = new List<User>();
+    private Random random = new Random();
+    private List<User> names = new List<User>
+    {
+
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetNames();
+    }
+
+    private async Task GetNames()
+    {
+        names = await Service.GetUsersAsync();
+    }
+
+    private void AddName()
+    {
+        int index;
+        string selectedName = string.Empty;
+        string jiraDashboardUrl = string.Empty;
+
+        if (names.Count > 0)
+        {
+            index = random.Next(names.Count);
+            // selectedName = names[index].FullName;
+            displayedNames.Add(names[index]);
+            // if (names[index].JiraDashboardUrl != string.Empty)
+            // {
+            //     displayedNames.Add($"<a href='{jiraDashboardUrl}' target='_blank' rel='noopener noreferrer'>{names[index].FullName}</a>");
+            // }
+            // else
+            // {
+            //     displayedNames.Add(names[index].FullName);
+            // }
+            names.Remove(names[index]);
+        }
+
+        if (names.Count == 0)
+        {
+            lastName = selectedName;
+        }
+    }
+
+}
